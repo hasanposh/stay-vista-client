@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../hooks/useAuth";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { ImSpinner10 } from "react-icons/im";
+import { imageUpload } from "../../api/utils";
 
 const SignUp = () => {
   const {
@@ -22,25 +22,29 @@ const SignUp = () => {
     const password = form.password.value;
     const image = form.image.files[0];
     // console.log(name, email, password, image);
-    const formData = new FormData();
-    formData.append("image", image);
+
+    // const formData = new FormData();
+    // formData.append("image", image);
     try {
       setLoading(true);
       // 1. upload the image and get img URL
-      const { data } = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${
-          import.meta.env.VITE_IMGBB_API_KEY
-        }`,
-        formData
-      );
-      console.log(data.data.display_url);
+
+      const image_url = await imageUpload(image);
+      // const { data } = await axios.post(
+      //   `https://api.imgbb.com/1/upload?key=${
+      //     import.meta.env.VITE_IMGBB_API_KEY
+      //   }`,
+      //   formData
+      // );
+      // console.log(data.data.display_url);
+      console.log(image_url);
 
       // user registration
       const result = await createUser(email, password);
       console.log(result);
 
       // update profile / save user name and photo in firebase
-      await updateUserProfile(name, data.data.display_url);
+      await updateUserProfile(name, image_url);
       navigate("/");
       toast.success("Sign Up Successfull");
     } catch (err) {
